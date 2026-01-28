@@ -14,6 +14,7 @@ app.use(errorHandler);             // function
 app.use("/auth", require("./routes/auth.route"));
 app.use("/students", require("./routes/student.route"));
 app.use("/rooms", require("./routes/room.route"));
+app.use("/attendance", require("./routes/attendance.route"));
 
 app.use(errorHandler);
 module.exports = app;
