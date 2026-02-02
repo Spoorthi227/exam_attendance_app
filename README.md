@@ -20,8 +20,6 @@ It provides role-based access for Admins and Teachers to ensure secure and organ
 - Mark student attendance (Present / Absent)
 
 ---
-
----
 ## 🛠️ Tech Stack
 - Node.js
 - Express.js
