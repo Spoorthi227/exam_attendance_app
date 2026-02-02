@@ -59,7 +59,7 @@ attendanceDB
 npm start
 ```
 
-## 👩‍🏫 Teacher APIs
+## Teacher APIs
 
 Fetch Allotted Rooms  
 GET /attendance/teacher/:teacherId/rooms
