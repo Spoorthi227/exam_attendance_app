@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/auth/Login';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import AttendanceSheet from './pages/teacher/AttendanceSheet';
+import AttendanceHistory from './pages/teacher/AttendanceHistory';
 
 /**
  * ProtectedRoute Component
@@ -73,6 +74,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/teacher/history" element={<AttendanceHistory />} />
 
           {/* Default Redirection */}
           <Route path="/" element={<Navigate to="/login" replace />} />

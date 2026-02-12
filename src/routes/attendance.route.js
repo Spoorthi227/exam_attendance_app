@@ -10,4 +10,6 @@ router.get("/room/:roomId", controller.getRoomAttendance);
 
 router.get("/room/:roomId/students", controller.getRoomStudents);
 
+router.get("/history/:teacherId", controller.getTeacherHistory);
+
 module.exports = router;

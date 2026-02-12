@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axios';
-import { LogOut, MapPin, Bell, BookOpen, User as UserIcon, Loader2, AlertCircle } from 'lucide-react';
+import { LogOut, MapPin, Bell, BookOpen, User as UserIcon, Loader2, Clock, AlertCircle } from 'lucide-react';
 
 const TeacherDashboard = () => {
     const { user, logout } = useAuth();
@@ -13,18 +13,19 @@ const TeacherDashboard = () => {
 
     useEffect(() => {
         const fetchRooms = async () => {
+            // Using the teacher ID from the authenticated user session
             const teacherId = user?.id || user?._id;
             if (!teacherId) return;
 
             try {
                 setLoading(true);
+                // GET /attendance/teacher/:teacherId/rooms
                 const { data } = await api.get(`/attendance/teacher/${teacherId}/rooms`);
                 setRooms(Array.isArray(data) ? data : []);
                 setError(null);
             } catch (err) {
                 console.error("Dashboard Fetch Error:", err.response?.data);
-                // We keep the error state but allow for manual testing
-                setError(err.response?.data?.message || "Server Communication Error");
+                setError(err.response?.data?.message || "Unable to load room allocations.");
             } finally {
                 setLoading(false);
             }
@@ -44,33 +45,48 @@ const TeacherDashboard = () => {
 
     return (
         <div className="min-h-screen bg-white font-sans text-gray-800">
+            {/* HEADER SECTION */}
             <header className="border-b-2 border-gray-100 py-4 px-6 md:px-12 flex justify-between items-center bg-white sticky top-0 z-50">
                 <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center border border-gray-300">
-                        <span className="font-bold text-[10px] text-center leading-tight text-gray-400">RVCE<br />PORTAL</span>
+                        <span className="font-bold text-[10px] text-center leading-tight text-gray-400 uppercase">RVCE<br />PORTAL</span>
                     </div>
                     <div>
                         <h1 className="text-lg md:text-xl font-bold text-gray-700 tracking-tight uppercase font-black">Exam Attendance</h1>
                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Faculty Management System</p>
                     </div>
                 </div>
+
                 <div className="flex items-center gap-6">
                     <div className="hidden md:block text-right">
                         <p className="text-sm font-bold text-gray-800">{user?.name}</p>
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">{user?.department || 'Department'}</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">
+                            {user?.department || 'Department'}
+                        </p>
+                        {/* VIEW HISTORY BUTTON */}
+                        <button
+                            onClick={() => navigate('/teacher/history')}
+                            className="flex items-center gap-1 ml-auto mt-1 text-[10px] font-black text-[#4b7bc3] hover:text-[#3a62a3] transition-colors uppercase tracking-widest"
+                        >
+                            <Clock size={12} /> View History
+                        </button>
                     </div>
+
                     <button onClick={logout} className="p-2 hover:bg-red-50 rounded-full text-gray-400 hover:text-red-600 transition-all border border-transparent hover:border-red-100">
                         <LogOut size={20} />
                     </button>
                 </div>
             </header>
 
+            {/* NOTIFICATIONS BAR */}
             <div className="bg-[#4b7bc3] text-white py-2 px-6 md:px-12 flex items-center gap-4 shadow-md">
                 <div className="bg-white/20 px-3 py-1 rounded flex items-center gap-2 flex-shrink-0 border border-white/30">
                     <Bell size={14} />
                     <span className="font-bold uppercase text-[10px] tracking-widest">Status</span>
                 </div>
-                <marquee className="text-xs font-medium">Please ensure all USNs are verified before final submission. Attendance portal closes 15 mins after commencement.</marquee>
+                <div className="text-xs font-medium truncate">
+                    Attendance marking closes 15 minutes after exam commencement. Ensure all USNs are verified.
+                </div>
             </div>
 
             <main className="max-w-7xl mx-auto py-10 px-6">
@@ -89,17 +105,13 @@ const TeacherDashboard = () => {
                     <div className="max-w-xl mx-auto p-10 bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl text-center">
                         <AlertCircle className="mx-auto text-[#d9532f] mb-4" size={48} />
                         <h2 className="text-lg font-bold text-gray-800 mb-2">Technical Sync Issue</h2>
-                        <p className="text-gray-500 text-sm mb-8">The system encountered an error loading your assigned rooms. This is usually due to a schema mismatch.</p>
-
-                        <div className="space-y-3">
-                            <button
-                                onClick={() => navigate('/teacher/attendance/101')}
-                                className="w-full bg-[#4b7bc3] text-white font-bold py-3 rounded-xl shadow-lg hover:bg-[#3a62a3] transition-all"
-                            >
-                                MANUAL ENTRY (ROOM 101)
-                            </button>
-                            <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Developer Log: {error}</p>
-                        </div>
+                        <p className="text-gray-500 text-sm mb-6">{error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="bg-[#4b7bc3] text-white px-6 py-2 rounded-xl font-bold uppercase text-xs"
+                        >
+                            Retry Connection
+                        </button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -140,7 +152,7 @@ const TeacherDashboard = () => {
                         )) : (
                             <div className="col-span-full py-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl text-center">
                                 <UserIcon size={40} className="mx-auto text-gray-300 mb-2" />
-                                <p className="text-gray-400 text-sm italic font-medium">No active room allocations assigned to this session.</p>
+                                <p className="text-gray-400 text-sm italic font-medium">No active room allocations assigned to your profile.</p>
                             </div>
                         )}
                     </div>
