@@ -2,13 +2,15 @@ const Attendance = require("../models/Attendance");
 const Room = require("../models/Room");
 
 exports.getTeacherRooms = async (req, res) => {
-  const { teacherId } = req.params;
+  try {
+    const { teacherId } = req.params;
+    const rooms = await Room.find({ teacherId })
+      .populate('examGroups.examId'); // This matches the path in the schema above
 
-  const rooms = await Room.find({ teacherId })
-    .populate("examId")
-    .populate("students");
-
-  res.json(rooms);
+    res.status(200).json(rooms);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 exports.markAttendance = async (req, res) => {
@@ -49,5 +51,28 @@ exports.getRoomAttendance = async (req, res) => {
     .populate("markedBy");
 
   res.json(data);
+};
+
+exports.getRoomStudents = async (req, res) => {
+  try {
+    const { roomId } = req.params; // This is "101"
+
+    // Find the room by its number and populate the students array
+    const room = await Room.findOne({ roomNumber: roomId })
+      .populate("examGroups.students");
+
+    if (!room) {
+      return res.status(404).json({ success: false, message: "Room not found" });
+    }
+
+    // Combine students from all exam groups in that room into one list
+    const allStudents = room.examGroups.reduce((acc, group) => {
+      return acc.concat(group.students);
+    }, []);
+
+    res.status(200).json(allStudents);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 

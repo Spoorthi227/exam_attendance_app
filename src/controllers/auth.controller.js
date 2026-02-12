@@ -51,13 +51,16 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Login attempt for:", email); // DEBUG
 
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
+      console.log("User not found in DB"); // DEBUG
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await user.matchPassword(password);
+    console.log("Password match result:", isMatch); // DEBUG
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }

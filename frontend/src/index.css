@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --rvce-blue: #4b7bc3;
+    --rvce-red: #d9532f;
+    --rvce-gray: #f4f4f4;
+  }
+}

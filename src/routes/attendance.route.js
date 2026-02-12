@@ -8,4 +8,6 @@ router.post("/mark", controller.markAttendance);
 
 router.get("/room/:roomId", controller.getRoomAttendance);
 
+router.get("/room/:roomId/students", controller.getRoomStudents);
+
 module.exports = router;
